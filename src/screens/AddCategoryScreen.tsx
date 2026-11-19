@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppTextField } from '../components/ui/AppTextField';
-import { AppDateField } from '../components/ui/AppDateField'; // Импорт нового поля
+import { AppDateField } from '../components/ui/AppDateField';
 import { TabButton } from '../components/ui/TabButton';
 import { AppButton } from '../components/ui/AppButton';
 import { IconButton } from '../components/ui/IconButton';
+import { CalendarModal } from '../components/ui/CalendarModal'; // Импорт календаря
 import { useMenu } from '../context/MenuContext';
 import { colors } from '../theme/tokens';
 
@@ -26,13 +27,21 @@ export const AddCategoryScreen: React.FC = () => {
   const [type, setType] = useState('');
   const [date, setDate] = useState('');
 
+  // Состояние для календаря
+  const [isCalendarVisible, setIsCalendarVisible] = useState(false);
+
   const handleSave = () => console.log('Сохранение:', { activeTab, name, amount, percent, type, date });
   const handleCancel = () => console.log('Отмена');
 
-  // Заглушка для открытия календаря
+  // Открытие календаря
   const handleDatePress = () => {
-    console.log('Открыть календарь');
-    // Здесь интегратор подключит календарь
+    setIsCalendarVisible(true);
+  };
+
+  // Сохранение выбранной даты из календаря
+  const handleSaveDate = (selectedDate: Date) => {
+    const formattedDate = `${selectedDate.getDate().toString().padStart(2, '0')}.${(selectedDate.getMonth() + 1).toString().padStart(2, '0')}.${selectedDate.getFullYear()}`;
+    setDate(formattedDate);
   };
 
   return (
@@ -101,7 +110,6 @@ export const AddCategoryScreen: React.FC = () => {
             </>
           )}
 
-          {/* НОВЫЙ БЛОК ДЛЯ КРЕДИТА */}
           {activeTab === 'credit' && (
             <>
               <View style={styles.inputGroup}>
@@ -118,7 +126,6 @@ export const AddCategoryScreen: React.FC = () => {
               </View>
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Дата</Text>
-                {/* Используем новое поле */}
                 <AppDateField 
                   value={date} 
                   placeholder="Выберите дату" 
@@ -145,6 +152,14 @@ export const AddCategoryScreen: React.FC = () => {
 
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Модальное окно календаря */}
+      <CalendarModal 
+        visible={isCalendarVisible} 
+        onClose={() => setIsCalendarVisible(false)} 
+        onSave={handleSaveDate} 
+      />
+
     </SafeAreaView>
   );
 };
