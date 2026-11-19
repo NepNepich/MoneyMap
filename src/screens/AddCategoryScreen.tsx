@@ -7,19 +7,25 @@ import { AppButton } from '../components/ui/AppButton';
 import { IconButton } from '../components/ui/IconButton';
 import { useMenu } from '../context/MenuContext';
 import { colors } from '../theme/tokens';
-import iconCategory from '../assets/icon-category.png';
-import iconDeposit from '../assets/icon-deposit.png';
-import iconCredit from '../assets/icon-credit.png';
+
+// Иконки (используем require, чтобы не было ошибок TypeScript)
+const iconCategory = require('../assets/icon-category.png');
+const iconDeposit = require('../assets/icon-deposit.png');
+const iconCredit = require('../assets/icon-credit.png');
 
 type TabType = 'category' | 'deposit' | 'credit';
 
 export const AddCategoryScreen: React.FC = () => {
   const { openMenu } = useMenu();
-  const [activeTab, setActiveTab] = useState<TabType>('category'); // По умолчанию выбрана Категория
+  const [activeTab, setActiveTab] = useState<TabType>('category');
+  
+  // Поля формы
   const [name, setName] = useState('');
+  const [amount, setAmount] = useState('');
+  const [percent, setPercent] = useState('');
   const [type, setType] = useState('');
 
-  const handleSave = () => console.log('Сохранение:', { activeTab, name, type });
+  const handleSave = () => console.log('Сохранение:', { activeTab, name, amount, percent, type });
   const handleCancel = () => console.log('Отмена');
 
   return (
@@ -34,7 +40,7 @@ export const AddCategoryScreen: React.FC = () => {
 
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           
-                    {/* Блок вкладок */}
+          {/* Блок вкладок */}
           <View style={styles.tabsRow}>
             <TabButton 
               iconSource={iconCategory} 
@@ -56,24 +62,47 @@ export const AddCategoryScreen: React.FC = () => {
             />
           </View>
 
-          {/* Поля ввода */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Название категории</Text>
-            <AppTextField 
-              placeholder="Введите название" 
-              value={name}
-              onChangeText={setName}
-            />
-          </View>
+          {/* УСЛОВНЫЙ РЕНДЕРИНГ ПОЛЕЙ */}
+          
+          {/* 1. Если выбрана Категория */}
+          {activeTab === 'category' && (
+            <>
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Название категории</Text>
+                <AppTextField placeholder="Введите название" value={name} onChangeText={setName} />
+              </View>
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Тип</Text>
+                <AppTextField placeholder="Выберите тип" value={type} onChangeText={setType} />
+              </View>
+            </>
+          )}
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Тип</Text>
-            <AppTextField 
-              placeholder="Выберите тип" 
-              value={type}
-              onChangeText={setType}
-            />
-          </View>
+          {/* 2. Если выбран Депозит */}
+          {activeTab === 'deposit' && (
+            <>
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Название депозита</Text>
+                <AppTextField placeholder="Введите название" value={name} onChangeText={setName} />
+              </View>
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Сумма</Text>
+                <AppTextField placeholder="Введите сумму" keyboardType="numeric" value={amount} onChangeText={setAmount} />
+              </View>
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Процент</Text>
+                <AppTextField placeholder="Введите процент дохода" keyboardType="numeric" value={percent} onChangeText={setPercent} />
+              </View>
+            </>
+          )}
+
+          {/* 3. Если выбран Кредит (добавьте поля, если они есть в макете) */}
+          {activeTab === 'credit' && (
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Название кредита</Text>
+              <AppTextField placeholder="Введите название" value={name} onChangeText={setName} />
+            </View>
+          )}
 
           {/* Кнопки */}
           <View style={styles.actions}>
@@ -120,7 +149,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   inputGroup: {
-    marginBottom: 24,
+    marginBottom: 16, // Немного уменьшил отступ, чтобы влезло 3 поля
   },
   label: {
     fontSize: 32,
