@@ -3,6 +3,10 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { MenuProvider, useMenu } from './src/context/MenuContext';
 import { SidebarMenu } from './src/components/ui/SidebarMenu';
 import { AccountsScreen } from './src/screens/AccountsScreen';
+import { View } from 'react-native';
+
+// Импорт шрифтов
+import { useFonts, Inter_400Regular, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
 
 const GlobalMenu = () => {
   const { isMenuVisible, closeMenu } = useMenu();
@@ -22,14 +26,22 @@ const GlobalMenu = () => {
 };
 
 export default function App() {
+  // Загружаем шрифты
+  const [fontsLoaded] = useFonts({
+    Inter_400Regular,
+    Inter_600SemiBold,
+    Inter_700Bold,
+  });
+
+  // Пока шрифты грузятся, показываем пустой экран (или лоадер)
+  if (!fontsLoaded) {
+    return <View style={{ flex: 1, backgroundColor: '#CAEAE1' }} />;
+  }
+
   return (
     <SafeAreaProvider>
       <MenuProvider>
-        {/* Пока здесь отображается экран счетов. 
-            В будущем интегратор заменит это на роутер */}
         <AccountsScreen />
-        
-        {/* Глобальное меню поверх всех экранов */}
         <GlobalMenu />
       </MenuProvider>
     </SafeAreaProvider>

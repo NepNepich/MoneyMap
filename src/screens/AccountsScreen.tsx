@@ -17,7 +17,7 @@ export const AccountsScreen: React.FC = () => {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
         <Text style={styles.screenTitle}>Счета</Text>
-        <IconButton onPress={openMenu} /> {/* Привязка к контексту */}
+        <IconButton onPress={openMenu} /> 
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
