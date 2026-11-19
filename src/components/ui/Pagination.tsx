@@ -1,17 +1,19 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Pressable } from 'react-native';
 
 interface PaginationProps {
   total: number;
   activeIndex: number;
+  onDotPress?: (index: number) => void; // Новый пропс
 }
 
-export const Pagination: React.FC<PaginationProps> = ({ total, activeIndex }) => {
+export const Pagination: React.FC<PaginationProps> = ({ total, activeIndex, onDotPress }) => {
   return (
     <View style={styles.container}>
       {Array.from({ length: total }).map((_, index) => (
-        <View
+        <Pressable
           key={index}
+          onPress={() => onDotPress?.(index)}
           style={[
             styles.dot,
             index === activeIndex ? styles.activeDot : styles.inactiveDot,
@@ -23,22 +25,8 @@ export const Pagination: React.FC<PaginationProps> = ({ total, activeIndex }) =>
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 8,
-    marginTop: 20,
-  },
-  dot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-  },
-  activeDot: {
-    backgroundColor: '#12A58B', // Accent из Figma
-  },
-  inactiveDot: {
-    backgroundColor: '#F6F8FC', // Светлый цвет из Figma
-  },
+  container: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8 },
+  dot: { width: 12, height: 12, borderRadius: 6 },
+  activeDot: { backgroundColor: '#12A58B' },
+  inactiveDot: { backgroundColor: '#F6F8FC' },
 });
