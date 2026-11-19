@@ -5,6 +5,7 @@ import { SidebarMenu } from './src/components/ui/SidebarMenu';
 import { AccountsScreen } from './src/screens/AccountsScreen';
 import { View } from 'react-native';
 import { AddAccountScreen } from './src/screens/AddAccountScreen'; 
+import { AddCategoryScreen } from './src/screens/AddCategoryScreen';
 
 // Импорт шрифтов
 import { useFonts, Inter_400Regular, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
@@ -42,7 +43,7 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <MenuProvider>
-        <AddAccountScreen />
+        <AddCategoryScreen />
         <GlobalMenu />
       </MenuProvider>
     </SafeAreaProvider>
