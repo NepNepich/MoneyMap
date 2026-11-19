@@ -5,7 +5,7 @@ import { colors } from '../../theme/tokens';
 interface SidebarMenuProps {
   visible: boolean;
   onClose: () => void;
-  onItemPress?: (id: string) => void; // Прокидываем нажатия наружу
+  onItemPress?: (id: string) => void;
 }
 
 const menuItems = [
@@ -25,7 +25,7 @@ export const SidebarMenu: React.FC<SidebarMenuProps> = ({ visible, onClose, onIt
       onRequestClose={onClose}
     >
       <View style={styles.overlay}>
-        {/* Затемнение фона */}
+        {/* Затемнение фона (закрывает меню по клику) */}
         <Pressable style={styles.backdrop} onPress={onClose} />
 
         {/* Сама панель */}
@@ -44,7 +44,10 @@ export const SidebarMenu: React.FC<SidebarMenuProps> = ({ visible, onClose, onIt
             {menuItems.map((item) => (
               <Pressable
                 key={item.id}
-                onPress={() => onItemPress?.(item.id)}
+                onPress={() => {
+                  onItemPress?.(item.id);
+                  onClose(); // Закрываем при клике
+                }}
                 style={({ pressed }) => [
                   styles.button,
                   pressed && styles.pressed,
@@ -76,20 +79,20 @@ const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     flexDirection: 'row',
-    justifyContent: 'flex-end', // Прижимаем панель к правому краю
+    justifyContent: 'flex-end',
   },
   backdrop: {
     ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(0, 0, 0, 0.4)',
   },
   panel: {
-    width: 290, // Из Figma
+    width: 290,
     height: '100%',
     backgroundColor: '#FFFFFF',
-    paddingHorizontal: 20, // Отступы Left/Right по 20px
+    paddingHorizontal: 20,
     paddingTop: 50,
     paddingBottom: 40,
-    justifyContent: 'space-between', // Раздвигает контент
+    justifyContent: 'space-between',
   },
   header: {
     flexDirection: 'row',
@@ -99,7 +102,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: '600', // Semi Bold
+    fontWeight: '600',
     color: '#000000',
   },
   closeIcon: {
@@ -108,8 +111,8 @@ const styles = StyleSheet.create({
     fontWeight: '300',
   },
   buttonsList: {
-    flex: 1, // Занимает всё доступное пространство
-    gap: 17, // Расстояние между кнопками
+    flex: 1,
+    gap: 17,
   },
   button: {
     width: 250,
@@ -120,7 +123,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: {
-    color: colors.textOnPrimary, // #F6F8FC
+    color: colors.textOnPrimary,
     fontSize: 28,
     fontWeight: '400',
   },
@@ -134,7 +137,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 'auto', // Прижимает кнопку к низу
+    marginTop: 'auto',
   },
   homeButtonText: {
     color: colors.primary,

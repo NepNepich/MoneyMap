@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppButton } from '../components/ui/AppButton';
 import { IconButton } from '../components/ui/IconButton';
-import { SidebarMenu } from '../components/ui/SidebarMenu'; // <--- Импорт меню
+import { useMenu } from '../context/MenuContext'; // Импорт контекста
 import { colors } from '../theme/tokens';
 
 const cardImg = require('../assets/card.png');
@@ -17,18 +17,9 @@ const mainButtons = [
 ];
 
 export const HomeScreen: React.FC = () => {
-  const [isMenuVisible, setIsMenuVisible] = useState(false);
-
-  const handleMenuClick = () => setIsMenuVisible(true);
-  const handleCloseMenu = () => setIsMenuVisible(false);
+  const { openMenu } = useMenu(); // Берем функцию открытия
   
   const handleButtonClick = (id: string) => console.log(`Нажата кнопка: ${id}`);
-  
-  // Обработчик для пунктов выезжающего меню
-  const handleSidebarClick = (id: string) => {
-    console.log(`Переход в раздел: ${id}`);
-    // Здесь логика интегратора: router.push(`/${id}`)
-  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -36,7 +27,7 @@ export const HomeScreen: React.FC = () => {
         
         <View style={styles.header}>
           <Text style={styles.title}>ФинСервис</Text>
-          <IconButton onPress={handleMenuClick} />
+          <IconButton onPress={openMenu} /> {/* Привязка к контексту */}
         </View>
 
         <View style={styles.logoWrapper}>
@@ -57,13 +48,6 @@ export const HomeScreen: React.FC = () => {
         </View>
 
       </View>
-
-      {/* Вызов вынесенного компонента меню */}
-      <SidebarMenu 
-        visible={isMenuVisible} 
-        onClose={handleCloseMenu} 
-        onItemPress={handleSidebarClick}
-      />
     </SafeAreaView>
   );
 };
