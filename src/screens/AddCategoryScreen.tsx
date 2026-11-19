@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppTextField } from '../components/ui/AppTextField';
+import { AppDateField } from '../components/ui/AppDateField'; // Импорт нового поля
 import { TabButton } from '../components/ui/TabButton';
 import { AppButton } from '../components/ui/AppButton';
 import { IconButton } from '../components/ui/IconButton';
 import { useMenu } from '../context/MenuContext';
 import { colors } from '../theme/tokens';
 
-// Иконки (используем require, чтобы не было ошибок TypeScript)
 const iconCategory = require('../assets/icon-category.png');
 const iconDeposit = require('../assets/icon-deposit.png');
 const iconCredit = require('../assets/icon-credit.png');
@@ -24,9 +24,16 @@ export const AddCategoryScreen: React.FC = () => {
   const [amount, setAmount] = useState('');
   const [percent, setPercent] = useState('');
   const [type, setType] = useState('');
+  const [date, setDate] = useState('');
 
-  const handleSave = () => console.log('Сохранение:', { activeTab, name, amount, percent, type });
+  const handleSave = () => console.log('Сохранение:', { activeTab, name, amount, percent, type, date });
   const handleCancel = () => console.log('Отмена');
+
+  // Заглушка для открытия календаря
+  const handleDatePress = () => {
+    console.log('Открыть календарь');
+    // Здесь интегратор подключит календарь
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -64,7 +71,6 @@ export const AddCategoryScreen: React.FC = () => {
 
           {/* УСЛОВНЫЙ РЕНДЕРИНГ ПОЛЕЙ */}
           
-          {/* 1. Если выбрана Категория */}
           {activeTab === 'category' && (
             <>
               <View style={styles.inputGroup}>
@@ -78,7 +84,6 @@ export const AddCategoryScreen: React.FC = () => {
             </>
           )}
 
-          {/* 2. Если выбран Депозит */}
           {activeTab === 'deposit' && (
             <>
               <View style={styles.inputGroup}>
@@ -96,12 +101,31 @@ export const AddCategoryScreen: React.FC = () => {
             </>
           )}
 
-          {/* 3. Если выбран Кредит (добавьте поля, если они есть в макете) */}
+          {/* НОВЫЙ БЛОК ДЛЯ КРЕДИТА */}
           {activeTab === 'credit' && (
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Название кредита</Text>
-              <AppTextField placeholder="Введите название" value={name} onChangeText={setName} />
-            </View>
+            <>
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Название кредита</Text>
+                <AppTextField placeholder="Введите название" value={name} onChangeText={setName} />
+              </View>
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Сумма</Text>
+                <AppTextField placeholder="Выберите сумму долга" keyboardType="numeric" value={amount} onChangeText={setAmount} />
+              </View>
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Процент</Text>
+                <AppTextField placeholder="Введите процент кредита" keyboardType="numeric" value={percent} onChangeText={setPercent} />
+              </View>
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Дата</Text>
+                {/* Используем новое поле */}
+                <AppDateField 
+                  value={date} 
+                  placeholder="Выберите дату" 
+                  onPress={handleDatePress} 
+                />
+              </View>
+            </>
           )}
 
           {/* Кнопки */}
@@ -149,7 +173,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   inputGroup: {
-    marginBottom: 16, // Немного уменьшил отступ, чтобы влезло 3 поля
+    marginBottom: 16, 
   },
   label: {
     fontSize: 32,
