@@ -5,6 +5,7 @@ import { AppButton } from '../components/ui/AppButton';
 import { IconButton } from '../components/ui/IconButton';
 import { useMenu } from '../context/MenuContext'; // Импорт контекста
 import { colors } from '../theme/tokens';
+import { useRouter } from 'expo-router';
 
 const cardImg = require('../assets/card.png');
 const barsImg = require('../assets/bars.png');
@@ -16,10 +17,26 @@ const mainButtons = [
   { id: 'table', label: 'Таблица' },
 ];
 
+
+
 export const HomeScreen: React.FC = () => {
   const { openMenu } = useMenu(); // Берем функцию открытия
-  
-  const handleButtonClick = (id: string) => console.log(`Нажата кнопка: ${id}`);
+  const router = useRouter();
+  const actions = {
+    'add-article': () => router.push('/add-category'),
+    'add-operation': () => router.push('/add-operation'),
+    'menu': openMenu,
+    'table': () => router.navigate('/')
+  }
+  const handleButtonClick = (id: string) => {
+    const action = actions[id as keyof typeof actions];
+    console.log(`Нажата кнопка: ${id}`);
+    if (action) {
+      action()
+    }
+  }
+
+
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -27,7 +44,7 @@ export const HomeScreen: React.FC = () => {
         
         <View style={styles.header}>
           <Text style={styles.title}>ФинСервис</Text>
-          <IconButton onPress={openMenu} /> {/* Привязка к контексту */}
+          <IconButton onPress={openMenu} />{/* Привязка к контексту */}
         </View>
 
         <View style={styles.logoWrapper}>

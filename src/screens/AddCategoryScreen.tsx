@@ -9,6 +9,7 @@ import { IconButton } from '../components/ui/IconButton';
 import { CalendarModal } from '../components/ui/CalendarModal'; // Импорт календаря
 import { useMenu } from '../context/MenuContext';
 import { colors } from '../theme/tokens';
+import { useRouter } from 'expo-router';
 
 const iconCategory = require('../assets/icon-category.png');
 const iconDeposit = require('../assets/icon-deposit.png');
@@ -19,6 +20,8 @@ type TabType = 'category' | 'deposit' | 'credit';
 export const AddCategoryScreen: React.FC = () => {
   const { openMenu } = useMenu();
   const [activeTab, setActiveTab] = useState<TabType>('category');
+
+  const router = useRouter();
   
   // Поля формы
   const [name, setName] = useState('');
@@ -31,7 +34,10 @@ export const AddCategoryScreen: React.FC = () => {
   const [isCalendarVisible, setIsCalendarVisible] = useState(false);
 
   const handleSave = () => console.log('Сохранение:', { activeTab, name, amount, percent, type, date });
-  const handleCancel = () => console.log('Отмена');
+  const handleCancel = () => {
+    router.back();
+    console.log('Отмена');
+  };
 
   // Открытие календаря
   const handleDatePress = () => {

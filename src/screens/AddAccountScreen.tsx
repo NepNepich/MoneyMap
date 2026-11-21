@@ -6,9 +6,11 @@ import { AppButton } from '../components/ui/AppButton';
 import { IconButton } from '../components/ui/IconButton';
 import { useMenu } from '../context/MenuContext';
 import { colors } from '../theme/tokens';
+import { useRouter } from 'expo-router';
 
 export const AddAccountScreen: React.FC = () => {
   const { openMenu } = useMenu();
+  const router = useRouter();
   const [accountName, setAccountName] = useState('');
   const [amount, setAmount] = useState('');
 
@@ -16,9 +18,10 @@ export const AddAccountScreen: React.FC = () => {
     console.log('Сохранение:', { accountName, amount });
   };
 
-  const handleCancel = () => {
-    console.log('Отмена');
-  };
+  const handleExample = () => {
+                console.log('Отмена');
+                router.back()
+              }
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -67,7 +70,7 @@ export const AddAccountScreen: React.FC = () => {
             
             <Pressable 
               style={({ pressed }) => [styles.cancelButton, pressed && { opacity: 0.8 }]}
-              onPress={handleCancel}
+              onPress={handleExample}
             >
               <Text style={styles.cancelButtonText}>Отмена</Text>
             </Pressable>

@@ -60,7 +60,7 @@ export const SidebarMenu: React.FC<SidebarMenuProps> = ({ visible, onClose, onIt
 
           {/* Кнопка "На главную" */}
           <Pressable
-            onPress={onClose}
+            onPress={() => onItemPress?.('home')}
             style={({ pressed }) => [
               styles.homeButton,
               pressed && styles.pressed,

@@ -6,6 +6,7 @@ import { Pagination } from '../components/ui/Pagination';
 import { IconButton } from '../components/ui/IconButton';
 import { useMenu } from '../context/MenuContext';
 import { colors } from '../theme/tokens';
+import { useRouter } from 'expo-router';
 
 const accountsData = [
   { title: 'Счет №1', subtitle: 'Основной счет', balanceText: '10000.00 ₽' },
@@ -16,7 +17,8 @@ const accountsData = [
 export const AccountsScreen: React.FC = () => {
   const { openMenu } = useMenu();
   const [activeIndex, setActiveIndex] = useState(0); 
-  
+  const router = useRouter();
+
   const { width } = useWindowDimensions();
   const scrollRef = useRef<any>(null);
 
@@ -83,12 +85,14 @@ export const AccountsScreen: React.FC = () => {
         <View style={styles.actions}>
           <Pressable 
             style={({ pressed }) => [styles.primaryButton, pressed && { opacity: 0.8 }]}
+            onPress={() => router.push('/add-account')}
           >
             <Text style={styles.buttonText}>Добавить счет</Text>
           </Pressable>
           
           <Pressable 
             style={({ pressed }) => [styles.secondaryButton, pressed && { opacity: 0.8 }]}
+            onPress={() => openMenu()}
           >
             <Text style={styles.secondaryButtonText}>Перейти в меню</Text>
           </Pressable>
