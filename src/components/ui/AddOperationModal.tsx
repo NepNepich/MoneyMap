@@ -1,39 +1,61 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Modal, Pressable, TouchableWithoutFeedback, TextInput, Image } from 'react-native';
 import { CalendarModal } from './CalendarModal';
+import { CustomRegularityModal } from './CustomRegularityModal';
+import { NotificationSettingsModal } from './NotificationSettingsModal';
 
-const iconCalendarSmall = require('../../assets/icon-calendar.png');
+const iconCalendarSmall = require('../../assets/icon-calendar-green.png');
 const iconChevronRight = require('../../assets/icon-chevron.png');
+const iconChevronDown = require('../../assets/icon-chevron.png');
+
+const REGULARITY_OPTIONS = ['Каждый месяц', 'Каждую неделю', 'Каждый день', 'Настраиваемый'];
 
 interface AddOperationModalProps {
   visible: boolean;
   onClose: () => void;
   articleName: string;
   initialDate: string;
-  onSave: (data: { amount: string; comment: string; isFact: boolean; date: string }) => void;
-  onNotificationPress: () => void; // <--- Новый пропс для открытия уведомлений
+  onSave: (data: { amount: string; comment: string; isFact: boolean; date: string; regularity?: string }) => void;
+  // onNotificationPress УДАЛЕН
 }
 
 export const AddOperationModal: React.FC<AddOperationModalProps> = ({
-  visible,
-  onClose,
-  articleName,
-  initialDate,
-  onSave,
-  onNotificationPress,
+  visible, onClose, articleName, initialDate, onSave
 }) => {
   const [isFact, setIsFact] = useState(true);
   const [comment, setComment] = useState('');
   const [amount, setAmount] = useState('');
   const [date, setDate] = useState(initialDate);
   const [isCalendarVisible, setIsCalendarVisible] = useState(false);
+  
+  const [regularity, setRegularity] = useState('Каждый месяц');
+  const [isRegularityOpen, setIsRegularityOpen] = useState(false);
+  const [isCustomRegularityVisible, setIsCustomRegularityVisible] = useState(false);
+  const [isNotificationVisible, setIsNotificationVisible] = useState(false);
+
+  useEffect(() => {
+    if (visible) {
+      setComment('');
+      setAmount('');
+      setDate(initialDate);
+      setIsFact(true);
+      setIsRegularityOpen(false);
+    }
+  }, [visible, initialDate]);
 
   const handleSave = () => {
     if (!amount.trim()) return;
-    onSave({ amount, comment, isFact, date });
+    onSave({ amount, comment, isFact, date, regularity });
     onClose();
-    setAmount('');
-    setComment('');
+  };
+
+  const handleSelectRegularity = (option: string) => {
+    if (option === 'Настраиваемый') {
+      setIsCustomRegularityVisible(true);
+    } else {
+      setRegularity(option);
+    }
+    setIsRegularityOpen(false);
   };
 
   return (
@@ -74,18 +96,38 @@ export const AddOperationModal: React.FC<AddOperationModalProps> = ({
                 </Pressable>
 
                 <Text style={styles.inputLabel}>Комментарий</Text>
-                <TextInput style={styles.input} value={comment} onChangeText={setComment} placeholder="Вода" />
+                <TextInput style={styles.input} value={comment} onChangeText={setComment} placeholder="Введите комментарий" />
 
                 {!isFact && (
                   <>
                     <Text style={styles.inputLabel}>Регулярность</Text>
-                    <Pressable style={styles.inputPressable}>
-                      <Text style={styles.inputText}>Раз в месяц</Text>
+                    <Pressable style={styles.dropdownInput} onPress={() => setIsRegularityOpen(!isRegularityOpen)}>
+                      <Text style={styles.inputText}>{regularity}</Text>
+                      <Image source={iconChevronDown} style={styles.chevronIcon} resizeMode="contain" />
                     </Pressable>
 
+                    {isRegularityOpen && (
+                      <View style={styles.dropdownList}>
+                        {REGULARITY_OPTIONS.map((option) => (
+                          <Pressable 
+                            key={option} 
+                            style={styles.dropdownItem} 
+                            onPress={() => handleSelectRegularity(option)}
+                          >
+                            <View style={styles.dropdownRow}>
+                              <Text style={styles.dropdownText}>{option}</Text>
+                              {option === 'Настраиваемый' && (
+                                <Image source={iconChevronRight} style={styles.dropdownIconRight} resizeMode="contain" />
+                              )}
+                            </View>
+                          </Pressable>
+                        ))}
+                      </View>
+                    )}
+
                     <Text style={styles.inputLabel}>Уведомления</Text>
-                    {/* Вызываем onNotificationPress */}
-                    <Pressable style={styles.notificationBox} onPress={onNotificationPress}>
+                    {/* ВЫЗЫВАЕМ ОКНО УВЕДОМЛЕНИЙ ЗДЕСЬ */}
+                    <Pressable style={styles.notificationBox} onPress={() => setIsNotificationVisible(true)}>
                       <Text style={styles.notificationText}>Настроить уведомления</Text>
                       <View style={styles.notificationRight}>
                         <Text style={styles.statusText}>ВКЛ</Text>
@@ -96,7 +138,7 @@ export const AddOperationModal: React.FC<AddOperationModalProps> = ({
                 )}
 
                 <Text style={styles.inputLabel}>Сумма, ₽</Text>
-                <TextInput style={styles.input} value={amount} onChangeText={setAmount} keyboardType="numeric" placeholder="1 357,00" />
+                <TextInput style={styles.input} value={amount} onChangeText={setAmount} keyboardType="numeric" placeholder="Введите сумму" />
 
                 <View style={styles.actions}>
                   <Pressable style={styles.cancelButton} onPress={onClose}>
@@ -120,12 +162,30 @@ export const AddOperationModal: React.FC<AddOperationModalProps> = ({
           setDate(`${newDate.getDate()}.${newDate.getMonth() + 1}`);
         }}
       />
+
+      <CustomRegularityModal 
+        visible={isCustomRegularityVisible}
+        onClose={() => setIsCustomRegularityVisible(false)}
+        onSave={(start, int, period, end) => {
+          setRegularity(`Настраиваемый (${int} ${period.toLowerCase()})`);
+        }}
+      />
+
+      {/* ОКНО НАСТРОЙКИ УВЕДОМЛЕНИЙ */}
+      <NotificationSettingsModal 
+        visible={isNotificationVisible}
+        onClose={() => setIsNotificationVisible(false)}
+        onSave={() => {
+          console.log('Настройки уведомлений сохранены');
+          setIsNotificationVisible(false);
+        }}
+      />
     </>
   );
 };
 
 const styles = StyleSheet.create({
-  // ... (стили без изменений, как в прошлом сообщении)
+  // ... (все стили остаются без изменений)
   overlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.4)', justifyContent: 'center', alignItems: 'center' },
   container: { width: 320, backgroundColor: '#FFFFFF', borderRadius: 20, padding: 20, borderWidth: 1, borderColor: '#D9D9D9' },
   title: { fontSize: 16, fontWeight: '600', color: '#000000', marginBottom: 16 },
@@ -144,8 +204,13 @@ const styles = StyleSheet.create({
   dateText: { fontSize: 13, fontWeight: '500', color: '#000000' },
   smallIcon: { width: 16, height: 16 },
   input: { width: '100%', height: 31, backgroundColor: '#E5F0ED', borderWidth: 1, borderColor: '#116F63', borderRadius: 8, paddingHorizontal: 12, fontSize: 13, fontWeight: '500', marginBottom: 16 },
-  inputPressable: { width: '100%', height: 31, backgroundColor: '#E5F0ED', borderWidth: 1, borderColor: '#116F63', borderRadius: 8, paddingHorizontal: 12, justifyContent: 'center', marginBottom: 16 },
+  dropdownInput: { width: '100%', height: 31, backgroundColor: '#E5F0ED', borderWidth: 1, borderColor: '#116F63', borderRadius: 8, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
   inputText: { fontSize: 13, fontWeight: '500', color: '#000000' },
+  dropdownList: { backgroundColor: '#E5F0ED', borderRadius: 8, borderWidth: 1, borderColor: '#116F63', marginBottom: 16, overflow: 'hidden' },
+  dropdownItem: { paddingVertical: 10, paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: 'rgba(0,0,0,0.05)' },
+  dropdownRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  dropdownText: { fontSize: 13, fontWeight: '500', color: '#000000' },
+  dropdownIconRight: { width: 12, height: 12 },
   notificationBox: { width: '100%', height: 39, backgroundColor: '#E5F0ED', borderRadius: 8, paddingHorizontal: 12, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
   notificationText: { fontSize: 13, fontWeight: '500', color: '#000000' },
   notificationRight: { flexDirection: 'row', alignItems: 'center', gap: 6 },

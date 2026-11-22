@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { IconButton } from './IconButton';
 import { CalendarModal } from './CalendarModal';
 import { ViewTypeModal } from './ViewTypeModal';
+import { AddPlanModal } from './AddPlanModal';
 
 const iconCalendar = require('../../assets/icon-calendar.png');
 const iconLayers = require('../../assets/icon-layers.png');
@@ -16,28 +17,23 @@ interface TopPanelProps {
   onIsFactChange?: (isFact: boolean) => void;
 }
 
+const PLANS = ['План на отпуск', 'Накопления', 'На машину'];
+
 export const TopPanel: React.FC<TopPanelProps> = ({ 
-  onMenuPress, 
-  onDateChange, 
-  onViewChange,
-  onIsFactChange 
+  onMenuPress, onDateChange, onViewChange, onIsFactChange 
 }) => {
   const [isCalendarVisible, setIsCalendarVisible] = useState(false);
   const [isViewTypeVisible, setIsViewTypeVisible] = useState(false);
   const [isFact, setIsFact] = useState(true);
+  
+  const [isPlanOpen, setIsPlanOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState('Основной план');
+  
+  const [isAddPlanVisible, setIsAddPlanVisible] = useState(false);
 
-  const handleSaveDate = (date: Date) => {
-    if (onDateChange) onDateChange(date);
-  };
-
-  const handleSelectViewType = (viewType: string) => {
-    if (onViewChange) onViewChange(viewType as any);
-  };
-
-  const handleToggleIsFact = () => {
-    const newValue = !isFact;
-    setIsFact(newValue);
-    if (onIsFactChange) onIsFactChange(newValue);
+  const handleSelectPlan = (planName: string) => {
+    setSelectedPlan(planName);
+    setIsPlanOpen(false);
   };
 
   return (
@@ -53,8 +49,9 @@ export const TopPanel: React.FC<TopPanelProps> = ({
           <IconButton onPress={onMenuPress} />
         </View>
 
+        {/* 1 РЯД */}
         <View style={styles.filtersRow}>
-          <Pressable style={styles.buttonWide} onPress={() => setIsCalendarVisible(true)}>
+          <Pressable style={styles.buttonWideLeft} onPress={() => setIsCalendarVisible(true)}>
             <View style={styles.buttonContent}>
               <Image source={iconCalendar} style={styles.icon} resizeMode="contain" />
               <Text style={styles.filterText}>Ноябрь 2026</Text>
@@ -62,22 +59,55 @@ export const TopPanel: React.FC<TopPanelProps> = ({
             <Image source={iconChevron} style={styles.chevronIcon} resizeMode="contain" />
           </Pressable>
 
-          <Pressable style={styles.buttonNarrow} onPress={() => setIsViewTypeVisible(true)}>
+          <Pressable style={styles.buttonNarrowRight} onPress={() => setIsViewTypeVisible(true)}>
             <Text style={styles.filterText}>Вид</Text>
             <Image source={iconChevron} style={styles.chevronIcon} resizeMode="contain" />
           </Pressable>
         </View>
 
-        <View style={styles.filtersRow}>
-          <Pressable style={styles.buttonWide}>
-            <View style={styles.buttonContent}>
-              <Image source={iconLayers} style={styles.icon} resizeMode="contain" />
-              <Text style={styles.filterText}>Основной план</Text>
-            </View>
-            <Image source={iconChevron} style={styles.chevronIcon} resizeMode="contain" />
-          </Pressable>
+        {/* 2 РЯД */}
+        <View style={[styles.filtersRow, { zIndex: 10 }]}>
+          
+          <View style={styles.planWrapper}>
+            <Pressable 
+              style={[styles.buttonWideLeft, isPlanOpen && styles.buttonWideActive]} 
+              onPress={() => setIsPlanOpen(!isPlanOpen)}
+            >
+              <View style={styles.buttonContent}>
+                <Image source={iconLayers} style={styles.icon} resizeMode="contain" />
+                <Text style={styles.filterText} numberOfLines={1}>{selectedPlan}</Text>
+              </View>
+              <Image 
+                source={iconChevron} 
+                style={[styles.chevronIcon, isPlanOpen && { transform: [{ rotate: '180deg' }] }]} 
+                resizeMode="contain" 
+              />
+            </Pressable>
 
-          <Pressable style={styles.buttonNarrow} onPress={handleToggleIsFact}>
+            {isPlanOpen && (
+              <View style={styles.dropdownContainer}>
+                {PLANS.map((plan) => (
+                  <Pressable key={plan} style={styles.planItem} onPress={() => handleSelectPlan(plan)}>
+                    <Text style={styles.planItemText}>{plan}</Text>
+                  </Pressable>
+                ))}
+                
+                <View style={styles.divider} />
+                
+                <Pressable 
+                  style={styles.createPlanButton} 
+                  onPress={() => {
+                    setIsPlanOpen(false);
+                    setIsAddPlanVisible(true);
+                  }}
+                >
+                  <Text style={styles.createPlanText}>Создать план</Text>
+                </Pressable>
+              </View>
+            )}
+          </View>
+
+          <Pressable style={styles.buttonNarrowRight} onPress={() => setIsFact(!isFact)}>
             <Text style={styles.filterText}>{isFact ? 'Факт' : 'План'}</Text>
           </Pressable>
         </View>
@@ -96,61 +126,131 @@ export const TopPanel: React.FC<TopPanelProps> = ({
             <Text style={styles.cardValue}>0 ₽</Text>
           </View>
         </View>
+
       </LinearGradient>
 
-      <CalendarModal 
-        visible={isCalendarVisible} 
-        onClose={() => setIsCalendarVisible(false)} 
-        onSave={handleSaveDate} 
-      />
+      <CalendarModal visible={isCalendarVisible} onClose={() => setIsCalendarVisible(false)} onSave={(d) => onDateChange?.(d)} />
+      <ViewTypeModal visible={isViewTypeVisible} onClose={() => setIsViewTypeVisible(false)} onSelect={(v) => onViewChange?.(v as any)} />
       
-      <ViewTypeModal
-        visible={isViewTypeVisible}
-        onClose={() => setIsViewTypeVisible(false)}
-        onSelect={handleSelectViewType}
+      <AddPlanModal 
+        visible={isAddPlanVisible} 
+        onClose={() => setIsAddPlanVisible(false)} 
+        onSave={(newPlanName) => {
+          console.log('Новый план:', newPlanName);
+          setSelectedPlan(newPlanName);
+        }} 
       />
     </>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { paddingHorizontal: 20, paddingTop: 40, paddingBottom: 20 },
+  container: { 
+    paddingHorizontal: 20, 
+    paddingTop: 40, 
+    paddingBottom: 20,
+    zIndex: 10,
+  },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
   title: { fontSize: 40, fontWeight: '600', color: '#FFFFFF' },
-  filtersRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10, gap: 10 },
-  buttonWide: {
-    flex: 65,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 16,
-    height: 71,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
+  
+  filtersRow: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    marginBottom: 10, 
+    gap: 10,
   },
-  buttonNarrow: {
-    flex: 35,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 16,
-    height: 71,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
+  
+  buttonWideLeft: { 
+    flex: 65, 
+    backgroundColor: 'rgba(255, 255, 255, 0.2)', 
+    borderRadius: 16, 
+    height: 71, 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'space-between', 
+    paddingHorizontal: 16 
   },
-  buttonContent: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  
+  buttonWideActive: {
+    backgroundColor: '#4A9A7E',
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+  },
+  
+  buttonNarrowRight: { 
+    flex: 35, 
+    backgroundColor: 'rgba(255, 255, 255, 0.2)', 
+    borderRadius: 16, 
+    height: 71, 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    paddingHorizontal: 16 
+  },
+  
+  buttonContent: { flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 },
   icon: { width: 24, height: 24 },
   filterText: { color: '#FFFFFF', fontSize: 18, fontWeight: '600' },
   chevronIcon: { width: 24, height: 24 },
-  cardsRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 10, gap: 8 },
-  card: {
-    flex: 1,
+
+  planWrapper: {
+    flex: 65, 
+    position: 'relative', 
+    zIndex: 100,
+  },
+
+  dropdownContainer: {
+    position: 'absolute',
+    top: 71, 
+    left: 0,
+    right: 0,
+    backgroundColor: '#4A9A7E',
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
+    padding: 12,
+    paddingTop: 8,
+    zIndex: 999,
+    elevation: 10,
+  },
+  planItem: {
+    width: '100%',
+    height: 60,
     backgroundColor: '#E5F0ED',
     borderRadius: 16,
-    padding: 12,
-    borderWidth: 2,
-    borderColor: '#D9D9D9',
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+    marginBottom: 8,
   },
+  planItemText: {
+    fontSize: 20,
+    fontWeight: '500',
+    color: '#116F63',
+  },
+  
+  divider: {
+    height: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.15)',
+    width: '100%',
+    marginVertical: 8,
+  },
+
+  createPlanButton: {
+    width: '100%',
+    height: 54,
+    backgroundColor: '#E5F0ED',
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  createPlanText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#116F63',
+  },
+
+  cardsRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 10, gap: 8 },
+  card: { flex: 1, backgroundColor: '#E5F0ED', borderRadius: 16, padding: 12, borderWidth: 2, borderColor: '#D9D9D9' },
   cardLabel: { fontSize: 13, fontWeight: '600', color: '#116F63', marginBottom: 4 },
   cardValue: { fontSize: 20, fontWeight: '700', color: '#000000' },
 });
