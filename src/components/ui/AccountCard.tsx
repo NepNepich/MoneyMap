@@ -56,33 +56,33 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: 20,
     padding: 24,
-    justifyContent: 'space-between', // Оставляем space-between, но...
-    paddingBottom: 32, // ...добавляем отступ снизу, чтобы поднять сумму выше
+    justifyContent: 'space-between', 
+    paddingBottom: 32, 
   },
   topRow: {
     flexDirection: 'row',
-    alignItems: 'flex-start', // Выравниваем всё по верхнему краю
+    alignItems: 'flex-start',
   },
   cardIcon: {
     width: 69,       
     height: 64.54,   
-    // Убрали marginTop: -10
+    marginTop: -10,  
   },
   textContainer: {
     flex: 1,
     marginLeft: 16,
-    // Убрали marginTop: 4, чтобы текст не опускался
+    marginTop: 4, 
   },
   title: {
     fontSize: 28,
     color: '#FFFFFF',
-    fontFamily: 'Inter_400Regular',
+    fontFamily: 'Inter_400Regular', // <--- ДОБАВЛЕН ШРИФТ
     lineHeight: 34,
   },
   subtitle: {
     fontSize: 14,
     color: '#E3E8F2',
-    fontFamily: 'Inter_400Regular',
+    fontFamily: 'Inter_400Regular', // <--- ДОБАВЛЕН ШРИФТ
     marginTop: 4,
   },
   settingsIcon: {
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
   },
   balance: {
     fontSize: 28,
-    fontFamily: 'Inter_600SemiBold',
+    fontFamily: 'Inter_600SemiBold', // <--- ДОБАВЛЕН ЖИРНЫЙ ШРИФТ
     color: '#F6F8FC',
   },
 });

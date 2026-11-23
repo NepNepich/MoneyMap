@@ -7,7 +7,7 @@ import { View } from 'react-native';
 import { AddAccountScreen } from './src/screens/AddAccountScreen'; 
 import { AddCategoryScreen } from './src/screens/AddCategoryScreen';
 import { TableScreen } from './src/screens/TableScreen';
-
+import { HomeScreen } from './src/screens/HomeScreen';
 // Импорт шрифтов
 import { useFonts, Inter_400Regular, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
 
@@ -29,14 +29,12 @@ const GlobalMenu = () => {
 };
 
 export default function App() {
-  // Загружаем шрифты
+  // Загружаем шрифты перед показом экрана
   const [fontsLoaded] = useFonts({
     Inter_400Regular,
     Inter_600SemiBold,
-    Inter_700Bold,
   });
 
-  // Пока шрифты грузятся, показываем пустой экран (или лоадер)
   if (!fontsLoaded) {
     return <View style={{ flex: 1, backgroundColor: '#CAEAE1' }} />;
   }
@@ -44,7 +42,7 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <MenuProvider>
-        <TableScreen />
+        <AccountsScreen />
         <GlobalMenu />
       </MenuProvider>
     </SafeAreaProvider>

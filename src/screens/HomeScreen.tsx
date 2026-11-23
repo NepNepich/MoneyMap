@@ -27,7 +27,7 @@ export const HomeScreen: React.FC = () => {
         
         <View style={styles.header}>
           <Text style={styles.title}>ФинСервис</Text>
-          <IconButton onPress={openMenu} /> {/* Привязка к контексту */}
+          <IconButton onPress={openMenu} />
         </View>
 
         <View style={styles.logoWrapper}>

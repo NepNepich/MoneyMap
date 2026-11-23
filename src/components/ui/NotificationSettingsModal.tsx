@@ -4,7 +4,8 @@ import { CalendarModal } from './CalendarModal';
 import { TimePickerModal } from './TimePickerModal';
 
 const iconCalendar = require('../../assets/icon-calendar-green.png');
-const iconClock = require('../../assets/icon-clock-green.png'); 
+const iconClock = require('../../assets/icon-clock.png'); 
+const iconChevronRight = require('../../assets/icon-chevron-right.png');
 
 interface NotificationSettingsModalProps {
   visible: boolean;
