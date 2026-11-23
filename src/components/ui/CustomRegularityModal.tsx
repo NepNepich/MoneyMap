@@ -3,8 +3,8 @@ import { View, Text, StyleSheet, Modal, Pressable, TouchableWithoutFeedback, Ima
 import { CalendarModal } from './CalendarModal';
 
 // Подключаем иконку календаря
-const iconCalendar = require('../../assets/icon-calendar.png');
-const iconChevronDown = require('../../assets/icon-chevron.png');
+const iconCalendar = require('../../assets/icon-calendar-green.png');
+const iconChevronDown = require('../../assets/icon-chevron-down.png');
 
 interface CustomRegularityModalProps {
   visible: boolean;

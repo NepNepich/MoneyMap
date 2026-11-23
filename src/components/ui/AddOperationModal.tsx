@@ -2,11 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Modal, Pressable, TouchableWithoutFeedback, TextInput, Image } from 'react-native';
 import { CalendarModal } from './CalendarModal';
 import { CustomRegularityModal } from './CustomRegularityModal';
-import { NotificationSettingsModal } from './NotificationSettingsModal';
 
 const iconCalendarSmall = require('../../assets/icon-calendar-green.png');
-const iconChevronRight = require('../../assets/icon-chevron.png');
-const iconChevronDown = require('../../assets/icon-chevron.png');
+const iconChevronRight = require('../../assets/icon-chevron-right.png');
+const iconChevronDown = require('../../assets/icon-chevron-down.png');
 
 const REGULARITY_OPTIONS = ['Каждый месяц', 'Каждую неделю', 'Каждый день', 'Настраиваемый'];
 
@@ -16,7 +15,6 @@ interface AddOperationModalProps {
   articleName: string;
   initialDate: string;
   onSave: (data: { amount: string; comment: string; isFact: boolean; date: string; regularity?: string }) => void;
-  // onNotificationPress УДАЛЕН
 }
 
 export const AddOperationModal: React.FC<AddOperationModalProps> = ({
@@ -31,7 +29,6 @@ export const AddOperationModal: React.FC<AddOperationModalProps> = ({
   const [regularity, setRegularity] = useState('Каждый месяц');
   const [isRegularityOpen, setIsRegularityOpen] = useState(false);
   const [isCustomRegularityVisible, setIsCustomRegularityVisible] = useState(false);
-  const [isNotificationVisible, setIsNotificationVisible] = useState(false);
 
   useEffect(() => {
     if (visible) {
@@ -66,7 +63,10 @@ export const AddOperationModal: React.FC<AddOperationModalProps> = ({
             <TouchableWithoutFeedback>
               <View style={styles.container}>
                 
-                <Text style={styles.title}>Добавить операцию</Text>
+                {/* ЗАГОЛОВОК С ВСТРОЕННОЙ ПОЛОСКОЙ */}
+                <View style={styles.headerWithLine}>
+                  <Text style={styles.title}>Добавить операцию</Text>
+                </View>
 
                 <View style={styles.infoRow}>
                   <View style={styles.infoColumnLeft}>
@@ -96,7 +96,13 @@ export const AddOperationModal: React.FC<AddOperationModalProps> = ({
                 </Pressable>
 
                 <Text style={styles.inputLabel}>Комментарий</Text>
-                <TextInput style={styles.input} value={comment} onChangeText={setComment} placeholder="Введите комментарий" />
+                <TextInput 
+                  style={styles.input} 
+                  value={comment} 
+                  onChangeText={setComment} 
+                  placeholder="Введите комментарий" 
+                  placeholderTextColor="rgba(118, 112, 112, 0.5)"
+                />
 
                 {!isFact && (
                   <>
@@ -126,8 +132,7 @@ export const AddOperationModal: React.FC<AddOperationModalProps> = ({
                     )}
 
                     <Text style={styles.inputLabel}>Уведомления</Text>
-                    {/* ВЫЗЫВАЕМ ОКНО УВЕДОМЛЕНИЙ ЗДЕСЬ */}
-                    <Pressable style={styles.notificationBox} onPress={() => setIsNotificationVisible(true)}>
+                    <Pressable style={styles.notificationBox}>
                       <Text style={styles.notificationText}>Настроить уведомления</Text>
                       <View style={styles.notificationRight}>
                         <Text style={styles.statusText}>ВКЛ</Text>
@@ -138,7 +143,14 @@ export const AddOperationModal: React.FC<AddOperationModalProps> = ({
                 )}
 
                 <Text style={styles.inputLabel}>Сумма, ₽</Text>
-                <TextInput style={styles.input} value={amount} onChangeText={setAmount} keyboardType="numeric" placeholder="Введите сумму" />
+                <TextInput 
+                  style={styles.input} 
+                  value={amount} 
+                  onChangeText={setAmount} 
+                  keyboardType="numeric" 
+                  placeholder="Введите сумму" 
+                  placeholderTextColor="rgba(118, 112, 112, 0.5)"
+                />
 
                 <View style={styles.actions}>
                   <Pressable style={styles.cancelButton} onPress={onClose}>
@@ -170,40 +182,60 @@ export const AddOperationModal: React.FC<AddOperationModalProps> = ({
           setRegularity(`Настраиваемый (${int} ${period.toLowerCase()})`);
         }}
       />
-
-      {/* ОКНО НАСТРОЙКИ УВЕДОМЛЕНИЙ */}
-      <NotificationSettingsModal 
-        visible={isNotificationVisible}
-        onClose={() => setIsNotificationVisible(false)}
-        onSave={() => {
-          console.log('Настройки уведомлений сохранены');
-          setIsNotificationVisible(false);
-        }}
-      />
     </>
   );
 };
 
 const styles = StyleSheet.create({
-  // ... (все стили остаются без изменений)
   overlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.4)', justifyContent: 'center', alignItems: 'center' },
   container: { width: 320, backgroundColor: '#FFFFFF', borderRadius: 20, padding: 20, borderWidth: 1, borderColor: '#D9D9D9' },
-  title: { fontSize: 16, fontWeight: '600', color: '#000000', marginBottom: 16 },
+  
+  // НОВЫЙ СТИЛЬ ДЛЯ ЗАГОЛОВКА С ЛИНИЕЙ
+  headerWithLine: {
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.15)',
+    paddingBottom: 12,
+    marginBottom: 16,
+    width: '100%',
+  },
+  title: { 
+    fontSize: 18, 
+    fontWeight: '600', 
+    color: '#000000',
+  },
+  
   infoRow: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 4, marginBottom: 16 },
   infoColumnLeft: { gap: 8 },
   infoColumnRight: { alignItems: 'flex-end', gap: 8 },
   infoLabel: { fontSize: 14, fontWeight: '500', color: 'rgba(0, 0, 0, 0.3)' },
   infoValue: { fontSize: 14, fontWeight: '500', color: '#000000' },
+  
   inputLabel: { fontSize: 14, fontWeight: '500', color: '#000000', marginBottom: 8 },
+  
   toggleContainer: { flexDirection: 'row', backgroundColor: '#E5F0ED', borderRadius: 8, padding: 4, marginBottom: 16 },
   toggleButton: { flex: 1, height: 60, justifyContent: 'center', alignItems: 'center', borderRadius: 8 },
   toggleButtonActive: { backgroundColor: '#116F63' },
   toggleText: { fontSize: 14, fontWeight: '600', color: '#116F63' },
   toggleTextActive: { color: '#FFFFFF' },
+
   dateInput: { width: 94, height: 31, backgroundColor: '#E5F0ED', borderWidth: 1, borderColor: '#116F63', borderRadius: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 10, marginBottom: 16 },
   dateText: { fontSize: 13, fontWeight: '500', color: '#000000' },
   smallIcon: { width: 16, height: 16 },
-  input: { width: '100%', height: 31, backgroundColor: '#E5F0ED', borderWidth: 1, borderColor: '#116F63', borderRadius: 8, paddingHorizontal: 12, fontSize: 13, fontWeight: '500', marginBottom: 16 },
+
+  input: { 
+    width: '100%', 
+    height: 31, 
+    backgroundColor: '#E5F0ED', 
+    borderWidth: 1, 
+    borderColor: '#116F63', 
+    borderRadius: 8, 
+    paddingHorizontal: 12, 
+    fontSize: 13, 
+    fontWeight: '500', 
+    marginBottom: 16,
+    color: '#000000',
+  },
+  
   dropdownInput: { width: '100%', height: 31, backgroundColor: '#E5F0ED', borderWidth: 1, borderColor: '#116F63', borderRadius: 8, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
   inputText: { fontSize: 13, fontWeight: '500', color: '#000000' },
   dropdownList: { backgroundColor: '#E5F0ED', borderRadius: 8, borderWidth: 1, borderColor: '#116F63', marginBottom: 16, overflow: 'hidden' },
@@ -211,11 +243,13 @@ const styles = StyleSheet.create({
   dropdownRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   dropdownText: { fontSize: 13, fontWeight: '500', color: '#000000' },
   dropdownIconRight: { width: 12, height: 12 },
+
   notificationBox: { width: '100%', height: 39, backgroundColor: '#E5F0ED', borderRadius: 8, paddingHorizontal: 12, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
   notificationText: { fontSize: 13, fontWeight: '500', color: '#000000' },
   notificationRight: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   statusText: { fontSize: 13, fontWeight: '500', color: '#16805B' },
   chevronIcon: { width: 12, height: 12 },
+
   actions: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 4, gap: 10 },
   cancelButton: { flex: 1, height: 39, backgroundColor: '#E5F0ED', borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
   cancelButtonText: { fontSize: 13, fontWeight: '500', color: '#116F63' },

@@ -163,6 +163,7 @@ const styles = StyleSheet.create({
   
   buttonWideLeft: { 
     flex: 65, 
+    minWidth: 0,
     backgroundColor: 'rgba(255, 255, 255, 0.2)', 
     borderRadius: 16, 
     height: 71, 
@@ -180,6 +181,7 @@ const styles = StyleSheet.create({
   
   buttonNarrowRight: { 
     flex: 35, 
+    minWidth: 0,
     backgroundColor: 'rgba(255, 255, 255, 0.2)', 
     borderRadius: 16, 
     height: 71, 
