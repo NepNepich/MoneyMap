@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { CellHistoryModal } from './CellHistoryModal';
 import { EditOperationModal } from './EditOperationModal';
 import { AddOperationModal } from './AddOperationModal';
-import { NotificationSettingsModal } from './NotificationSettingsModal';
+import { LoanModal } from './LoanModal';
 
 interface TableGridProps {
   startDate: Date;
@@ -11,6 +11,7 @@ interface TableGridProps {
   isFact?: boolean;
 }
 
+// Базовый список статей
 const articles = [
   { id: '1', name: 'Доходы', type: 'header' },
   { id: '2', name: 'Подработка', type: 'row' },
@@ -25,6 +26,7 @@ const articles = [
   { id: '11', name: 'Развлечения', type: 'row' },
 ];
 
+// Интерфейс операции
 interface Operation {
   id: string;
   articleId: string;
@@ -35,6 +37,7 @@ interface Operation {
 }
 
 export const TableGrid: React.FC<TableGridProps> = ({ startDate, viewType = 'Месяц', isFact = true }) => {
+  // Мок-данные (в будущем придут от интегратора)
   const [operations, setOperations] = useState<Operation[]>([
     { id: '1', articleId: '3', date: '2026-11-01', amount: '1 000', comment: 'Первый займ', isFact: false },
     { id: '2', articleId: '3', date: '2026-11-08', amount: '1 000', comment: 'Второй займ', isFact: true },
@@ -45,9 +48,9 @@ export const TableGrid: React.FC<TableGridProps> = ({ startDate, viewType = 'М�
   const [isHistoryVisible, setIsHistoryVisible] = useState(false);
   const [isEditVisible, setIsEditVisible] = useState(false);
   const [isAddVisible, setIsAddVisible] = useState(false);
-  const [isNotificationVisible, setIsNotificationVisible] = useState(false);
+  const [isLoanVisible, setIsLoanVisible] = useState(false);
   
-  // Данные выбранной ячейки (статья, диапазон дат и подпись колонки)
+  // Данные выбранной ячейки
   const [selectedCell, setSelectedCell] = useState<{ 
     articleId: string; 
     articleName: string; 
@@ -61,7 +64,7 @@ export const TableGrid: React.FC<TableGridProps> = ({ startDate, viewType = 'М�
   const fixedColWidth = 120;
   const dataColWidth = 100;
 
-  // Генерация колонок в зависимости от выбранного вида
+  // 1. Генерация колонок в зависимости от выбранного вида
   const columns: { label: string; start: Date; end: Date }[] = [];
   
   if (viewType === 'Неделя') {
@@ -107,7 +110,7 @@ export const TableGrid: React.FC<TableGridProps> = ({ startDate, viewType = 'М�
     }
   }
 
-  // Подсчет суммы для ячейки (суммирует все операции, попадающие в диапазон дат)
+  // 2. Вычисление суммы для конкретной ячейки
   const getCellSum = (articleId: string, colStart: Date, colEnd: Date, showFact: boolean) => {
     const relevantOps = operations.filter(op => {
       const opDate = new Date(op.date);
@@ -125,6 +128,7 @@ export const TableGrid: React.FC<TableGridProps> = ({ startDate, viewType = 'М�
     return total.toFixed(2).replace('.00', '');
   };
 
+  // 3. Цвет текста в зависимости от типа и значения
   const getValueColor = (val: string, isPlan: boolean, isBalanceRow: boolean) => {
     if (val === '—') return '#000000';
     if (isBalanceRow) return '#4E60BD';
@@ -132,13 +136,20 @@ export const TableGrid: React.FC<TableGridProps> = ({ startDate, viewType = 'М�
     return '#2D871F';
   };
 
-  // Обработчик клика по ячейке
+  // 4. Обработчик клика по ячейке
   const handleCellPress = (articleId: string, articleName: string, start: Date, end: Date, label: string) => {
+    // Если это "Взятие займа" или "Баланс", открываем окно займов
+    if (articleName === 'Взятие займа' || articleName === 'Баланс') {
+      setIsLoanVisible(true);
+      return;
+    }
+    
+    // Для остальных статей - стандартная логика (история)
     setSelectedCell({ articleId, articleName, startDate: start, endDate: end, label });
     setIsHistoryVisible(true);
   };
 
-  // Фильтрация и сортировка истории для выбранной ячейки
+  // 5. Фильтрация и сортировка истории для выбранной ячейки
   const historyForCell = selectedCell 
     ? operations
         .filter(op => {
@@ -152,49 +163,28 @@ export const TableGrid: React.FC<TableGridProps> = ({ startDate, viewType = 'М�
         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     : [];
 
-  // Добавление новой операции
-  const handleAddOperation = (data: { amount: string; comment: string; isFact: boolean; date: string; regularity?: string }) => {
-  if (!selectedCell) return;
+  // 6. Добавление новой операции
+  const handleAddOperation = (data: { amount: string; comment: string; isFact: boolean; date: string }) => {
+    if (!selectedCell) return;
+    
+    const [day, month] = data.date.split('.');
+    const year = selectedCell.startDate.getFullYear();
+    const dateForDb = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
 
-  const [day, month] = data.date.split('.');
-  const year = selectedCell.startDate.getFullYear();
-  const baseDate = new Date(year, parseInt(month) - 1, parseInt(day));
-
-  const newOps: Operation[] = [];
-
-  // Если регулярности нет или она "Каждый месяц" / "Настраиваемый" и т.д.
-  if (data.regularity === 'Каждый месяц') {
-    // Генерируем 12 месяцев (например, до конца года)
-    for (let i = 0; i < 12; i++) {
-      const opDate = new Date(baseDate);
-      opDate.setMonth(baseDate.getMonth() + i);
-      
-      newOps.push({
-        id: `${Date.now()}_${i}`,
-        articleId: selectedCell.articleId,
-        date: opDate.toISOString().split('T')[0],
-        amount: data.amount,
-        comment: data.comment,
-        isFact: data.isFact,
-      });
-    }
-  } else {
-    // Обычная операция
-    newOps.push({
+    const newOp: Operation = {
       id: Date.now().toString(),
       articleId: selectedCell.articleId,
-      date: baseDate.toISOString().split('T')[0],
+      date: dateForDb,
       amount: data.amount,
       comment: data.comment,
       isFact: data.isFact,
-    });
-  }
+    };
+    
+    setOperations(prev => [...prev, newOp]);
+    setIsAddVisible(false);
+  };
 
-  setOperations(prev => [...prev, ...newOps]);
-  setIsAddVisible(false);
-};
-
-  // Открытие окна редактирования
+  // 7. Открытие окна редактирования
   const handleEditClick = (opId: string) => {
     const op = operations.find(o => o.id === opId);
     if (op) {
@@ -203,7 +193,7 @@ export const TableGrid: React.FC<TableGridProps> = ({ startDate, viewType = 'М�
     }
   };
 
-  // Сохранение отредактированной операции
+  // 8. Сохранение отредактированной операции
   const handleSaveEdit = (newAmount: string, newComment: string) => {
     if (!editingOperation) return;
     setOperations(prev => prev.map(op => 
@@ -211,7 +201,7 @@ export const TableGrid: React.FC<TableGridProps> = ({ startDate, viewType = 'М�
     ));
   };
 
-  // Удаление операции
+  // 9. Удаление операции
   const handleDeleteOperation = (opId: string) => {
     setOperations(prev => prev.filter(op => op.id !== opId));
   };
@@ -221,7 +211,7 @@ export const TableGrid: React.FC<TableGridProps> = ({ startDate, viewType = 'М�
       <ScrollView showsVerticalScrollIndicator={false} style={styles.verticalScroll}>
         <View style={styles.tableRow}>
           
-          {/* Левая фиксированная колонка */}
+          {/* ЛЕВАЯ ФИКСИРОВАННАЯ КОЛОНКА */}
           <View style={[styles.fixedColumn, { width: fixedColWidth }]}>
             <View style={styles.headerCellName}>
               <Text style={styles.headerText}>Статья</Text>
@@ -244,7 +234,7 @@ export const TableGrid: React.FC<TableGridProps> = ({ startDate, viewType = 'М�
             })}
           </View>
 
-          {/* Правая скроллируемая часть */}
+          {/* ПРАВАЯ СКРОЛЛИРУЕМАЯ ЧАСТЬ */}
           <ScrollView horizontal showsHorizontalScrollIndicator={true} nestedScrollEnabled={true} style={styles.horizontalScroll}>
             <View>
               <View style={styles.headerRow}>
@@ -283,7 +273,7 @@ export const TableGrid: React.FC<TableGridProps> = ({ startDate, viewType = 'М�
         </View>
       </ScrollView>
 
-      {/* Модальные окна */}
+      {/* МОДАЛЬНЫЕ ОКНА */}
       
       <CellHistoryModal
         visible={isHistoryVisible}
@@ -314,13 +304,6 @@ export const TableGrid: React.FC<TableGridProps> = ({ startDate, viewType = 'М�
         onSave={handleSaveEdit}
       />
 
-      {/* Окно уведомлений (открывается поверх окна добавления) */}
-      <NotificationSettingsModal 
-        visible={isNotificationVisible}
-        onClose={() => setIsNotificationVisible(false)}
-        onSave={() => console.log('Настройки уведомлений сохранены')}
-      />
-
       {selectedCell && (
         <AddOperationModal
           visible={isAddVisible}
@@ -328,9 +311,18 @@ export const TableGrid: React.FC<TableGridProps> = ({ startDate, viewType = 'М�
           articleName={selectedCell.articleName}
           initialDate={`${selectedCell.startDate.getDate()}.${selectedCell.startDate.getMonth() + 1}`}
           onSave={handleAddOperation}
-          
         />
       )}
+
+      {/* ОКНО ЗАЙМОВ */}
+      <LoanModal 
+        visible={isLoanVisible}
+        onClose={() => setIsLoanVisible(false)}
+        onSave={(data) => {
+          console.log('Данные займа:', data);
+          setIsLoanVisible(false);
+        }}
+      />
     </>
   );
 };

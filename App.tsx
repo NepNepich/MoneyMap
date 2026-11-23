@@ -42,7 +42,7 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <MenuProvider>
-        <AccountsScreen />
+        <TableScreen />
         <GlobalMenu />
       </MenuProvider>
     </SafeAreaProvider>
