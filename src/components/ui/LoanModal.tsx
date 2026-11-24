@@ -4,8 +4,10 @@ import { CalendarModal } from './CalendarModal';
 import { NotificationSettingsModal } from './NotificationSettingsModal';
 
 const iconCalendar = require('../../assets/icon-calendar-green.png');
-const iconArrowUp = require('../../assets/icon-arrow-up-right.png');
-const iconArrowDown = require('../../assets/icon-arrow-down-left.png');
+const iconArrowUpGreen = require('../../assets/icon-arrow-up-green.png');
+const iconArrowUpGray = require('../../assets/icon-arrow-up-gray.png');
+const iconArrowDownGreen = require('../../assets/icon-arrow-down-green.png');
+const iconArrowDownGray = require('../../assets/icon-arrow-down-gray.png');
 const iconChevronRight = require('../../assets/icon-chevron-right.png');
 const iconChevronDown = require('../../assets/icon-chevron-down.png');
 
@@ -18,7 +20,7 @@ interface LoanModalProps {
 const LOANS = ['Займ №1', 'Займ №2', 'Займ №3'];
 
 export const LoanModal: React.FC<LoanModalProps> = ({ visible, onClose, onSave }) => {
-  const [isFact, setIsFact] = useState(true); // Рабочий переключатель
+  const [isFact, setIsFact] = useState(false);
   const [loanType, setLoanType] = useState<'get' | 'pay'>('pay');
   
   const [amount, setAmount] = useState('');
@@ -27,11 +29,8 @@ export const LoanModal: React.FC<LoanModalProps> = ({ visible, onClose, onSave }
   const [endDate, setEndDate] = useState('');
   const [comment, setComment] = useState('');
   
-  // Для выпадающего списка займов
   const [selectedLoan, setSelectedLoan] = useState('Займ №1');
   const [isLoansOpen, setIsLoansOpen] = useState(false);
-
-  // Для уведомлений
   const [isNotificationVisible, setIsNotificationVisible] = useState(false);
 
   const [isStartCalendar, setIsStartCalendar] = useState(false);
@@ -55,7 +54,7 @@ export const LoanModal: React.FC<LoanModalProps> = ({ visible, onClose, onSave }
 
                 <Text style={styles.inputLabel}>Тип операции</Text>
                 
-                {/* РАБОЧИЙ ПЕРЕКЛЮЧАТЕЛЬ ФАКТ/ПЛАН */}
+                {/* ПЕРЕКЛЮЧАТЕЛЬ ФАКТ/ПЛАН */}
                 <View style={styles.toggleContainer}>
                   <Pressable 
                     style={[styles.toggleButton, isFact && styles.toggleButtonActive]} 
@@ -78,15 +77,26 @@ export const LoanModal: React.FC<LoanModalProps> = ({ visible, onClose, onSave }
                     style={[styles.loanTypeButton, loanType === 'get' && styles.loanTypeButtonActive]} 
                     onPress={() => setLoanType('get')}
                   >
-                    <Image source={iconArrowUp} style={[styles.loanTypeIcon, loanType !== 'get' && { opacity: 0.3 }]} />
-                    <Text style={[styles.loanTypeText, loanType !== 'get' && { color: 'rgba(0,0,0,0.3)' }]}>Получение займа</Text>
+                    <Image 
+                      source={loanType === 'get' ? iconArrowUpGreen : iconArrowUpGray} 
+                      style={styles.loanTypeIcon} 
+                    />
+                    <Text style={[styles.loanTypeText, { color: loanType === 'get' ? '#16805B' : 'rgba(0, 0, 0, 0.4)' }]}>
+                      Получение займа
+                    </Text>
                   </Pressable>
+                  
                   <Pressable 
                     style={[styles.loanTypeButton, loanType === 'pay' && styles.loanTypeButtonActive]} 
                     onPress={() => setLoanType('pay')}
                   >
-                    <Image source={iconArrowDown} style={[styles.loanTypeIcon, loanType !== 'pay' && { opacity: 0.3 }]} />
-                    <Text style={[styles.loanTypeText, loanType !== 'pay' && { color: 'rgba(0,0,0,0.3)' }]}>Погашение долга</Text>
+                    <Image 
+                      source={loanType === 'pay' ? iconArrowDownGreen : iconArrowDownGray} 
+                      style={styles.loanTypeIcon} 
+                    />
+                    <Text style={[styles.loanTypeText, { color: loanType === 'pay' ? '#16805B' : 'rgba(0, 0, 0, 0.4)' }]}>
+                      Погашение долга
+                    </Text>
                   </Pressable>
                 </View>
 
@@ -155,16 +165,15 @@ export const LoanModal: React.FC<LoanModalProps> = ({ visible, onClose, onSave }
                       <Image source={iconCalendar} style={styles.iconSmall} />
                     </Pressable>
 
-                    {/* ОСТАТОК ДОЛГА В ОТДЕЛЬНОМ ПОЛЕ */}
-                    <Text style={styles.inputLabel}>Остаток долга после оплаты</Text>
-                    <View style={styles.readOnlyField}>
-                      <Text style={styles.readOnlyText}>15 000 ₽</Text>
+                    {/* ИНФОРМАЦИОННАЯ ПЛАШКА (СЛЕВА СЕРЫЙ ТЕКСТ, СПРАВА ЗЕЛЕНАЯ СУММА) */}
+                    <View style={styles.remainingDebtContainer}>
+                      <Text style={styles.remainingDebtLabel}>Остаток долга после оплаты</Text>
+                      <Text style={styles.remainingDebtAmount}>15 000 ₽</Text>
                     </View>
                   </>
                 )}
 
                 <Text style={styles.inputLabel}>Уведомления</Text>
-                {/* ВЫЗОВ ОКНА УВЕДОМЛЕНИЙ */}
                 <Pressable style={styles.notificationBox} onPress={() => setIsNotificationVisible(true)}>
                   <Text style={styles.notificationText}>Настроить уведомления</Text>
                   <View style={styles.notificationRight}>
@@ -193,7 +202,6 @@ export const LoanModal: React.FC<LoanModalProps> = ({ visible, onClose, onSave }
       <CalendarModal visible={isStartCalendar} onClose={() => setIsStartCalendar(false)} onSave={(d) => setStartDate(`${d.getDate()}.${d.getMonth() + 1}.${d.getFullYear()}`)} />
       <CalendarModal visible={isEndCalendar} onClose={() => setIsEndCalendar(false)} onSave={(d) => setEndDate(`${d.getDate()}.${d.getMonth() + 1}.${d.getFullYear()}`)} />
       
-      {/* ОКНО УВЕДОМЛЕНИЙ */}
       <NotificationSettingsModal 
         visible={isNotificationVisible}
         onClose={() => setIsNotificationVisible(false)}
@@ -217,10 +225,10 @@ const styles = StyleSheet.create({
   toggleTextActive: { color: '#FFFFFF' },
 
   loanTypeContainer: { flexDirection: 'row', gap: 10, marginBottom: 16 },
-  loanTypeButton: { flex: 1, height: 54, backgroundColor: '#E5F0ED', borderRadius: 8, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', gap: 6 },
+  loanTypeButton: { flex: 1, height: 54, backgroundColor: '#E5F0ED', borderRadius: 8, justifyContent: 'center', alignItems: 'center', flexDirection: 'column', gap: 4, paddingHorizontal: 4 },
   loanTypeButtonActive: { borderWidth: 1, borderColor: '#16805B' },
   loanTypeIcon: { width: 16, height: 16 },
-  loanTypeText: { fontSize: 14, fontWeight: '600', color: '#16805B' },
+  loanTypeText: { fontSize: 12, fontWeight: '600', textAlign: 'center' },
 
   input: { width: '100%', height: 42, backgroundColor: '#E5F0ED', borderWidth: 1, borderColor: '#116F63', borderRadius: 8, paddingHorizontal: 12, fontSize: 13, fontWeight: '500', marginBottom: 16, color: '#000000' },
   inputPressable: { width: '100%', height: 42, backgroundColor: '#E5F0ED', borderWidth: 1, borderColor: '#116F63', borderRadius: 8, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
@@ -228,7 +236,6 @@ const styles = StyleSheet.create({
   placeholder: { color: 'rgba(0,0,0,0.4)' },
   iconSmall: { width: 16, height: 16 },
   
-  // Выпадающий список
   dropdownWrapper: { position: 'relative', marginBottom: 16, zIndex: 10 },
   dropdownList: { position: 'absolute', top: 42, left: 0, right: 0, backgroundColor: '#E5F0ED', borderRadius: 8, borderWidth: 1, borderColor: '#116F63', zIndex: 20 },
   dropdownItem: { paddingVertical: 12, paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: 'rgba(0,0,0,0.05)' },
@@ -236,22 +243,26 @@ const styles = StyleSheet.create({
 
   datesRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 10 },
   
-  // Поле "Остаток долга"
-  readOnlyField: {
-    width: '100%',
-    height: 42,
-    backgroundColor: '#E5F0ED',
-    borderWidth: 1,
-    borderColor: '#116F63',
+  // ПЛАШКА ОСТАТКА ДОЛГА
+  remainingDebtContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#F8F9FA', // Очень светлый серый фон
     borderRadius: 8,
+    paddingVertical: 12,
     paddingHorizontal: 12,
-    justifyContent: 'center',
     marginBottom: 16,
   },
-  readOnlyText: {
-    fontSize: 13,
+  remainingDebtLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: 'rgba(0, 0, 0, 0.4)', // Серый текст
+  },
+  remainingDebtAmount: {
+    fontSize: 16,
     fontWeight: '600',
-    color: '#000000',
+    color: '#16805B', // Зеленая сумма
   },
 
   notificationBox: { width: '100%', height: 42, backgroundColor: '#E5F0ED', borderRadius: 8, paddingHorizontal: 12, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
