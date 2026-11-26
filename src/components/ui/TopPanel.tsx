@@ -70,7 +70,11 @@ export const TopPanel: React.FC<TopPanelProps> = ({
           
           <View style={styles.planWrapper}>
             <Pressable 
-              style={[styles.buttonWideLeft, isPlanOpen && styles.buttonWideActive]} 
+              style={[
+                styles.buttonWideLeft, 
+                { width: '100%' }, // <--- ДОБАВИТЬ ЭТО
+                isPlanOpen && styles.buttonWideActive
+              ]} 
               onPress={() => setIsPlanOpen(!isPlanOpen)}
             >
               <View style={styles.buttonContent}>
@@ -161,9 +165,8 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   
-  buttonWideLeft: { 
-    flex: 65, 
-    minWidth: 0,
+   buttonWideLeft: { 
+    width: '65%', // Жесткая ширина в процентах
     backgroundColor: 'rgba(255, 255, 255, 0.2)', 
     borderRadius: 16, 
     height: 71, 
@@ -179,9 +182,8 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 0,
   },
   
-  buttonNarrowRight: { 
-    flex: 35, 
-    minWidth: 0,
+   buttonNarrowRight: { 
+    width: '35%', 
     backgroundColor: 'rgba(255, 255, 255, 0.2)', 
     borderRadius: 16, 
     height: 71, 
@@ -197,7 +199,7 @@ const styles = StyleSheet.create({
   chevronIcon: { width: 24, height: 24 },
 
   planWrapper: {
-    flex: 65, 
+    width: '65%', // Теперь обертка тоже ровно 65%
     position: 'relative', 
     zIndex: 100,
   },

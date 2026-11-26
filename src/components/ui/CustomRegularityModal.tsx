@@ -126,11 +126,34 @@ const styles = StyleSheet.create({
   icon: { width: 16, height: 16 }, // Размер иконки календаря
   
   intervalRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16, zIndex: 10 },
-  intervalCounter: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#E5F0ED', borderWidth: 1, borderColor: '#116F63', borderRadius: 8, height: 31, width: 105 },
-  counterButton: { width: 30, justifyContent: 'center', alignItems: 'center' },
-  counterText: { fontSize: 18, color: '#116F63', fontWeight: '500' },
-  counterValue: { fontSize: 14, fontWeight: '500', color: '#000000' },
+  intervalCounter: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: '#E5F0ED', 
+    borderWidth: 1, 
+    borderColor: '#116F63', 
+    borderRadius: 8, 
+    height: 42, 
+    width: 105,
+    // Убираем justifyContent: 'space-between', если он был, 
+    // и даем цифре растянуться
+  },
   
+  counterButton: { 
+    width: 30, 
+    height: '100%', 
+    justifyContent: 'center', 
+    alignItems: 'center' 
+  },
+  counterText: { fontSize: 18, color: '#116F63', fontWeight: '500' },
+  counterValue: { 
+    flex: 1, // <--- ЗАНИМАЕТ ВСЁ СВОБОДНОЕ МЕСТО
+    textAlign: 'center', // <--- ЦИФРА ПО ЦЕНТРУ
+    fontSize: 14, 
+    fontWeight: '500', 
+    color: '#000000' 
+  },
+    
   periodWrapper: { width: 171, position: 'relative' },
   periodInput: { width: '100%', height: 31, backgroundColor: '#E5F0ED', borderWidth: 1, borderColor: '#116F63', borderRadius: 8, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   iconSmall: { width: 12, height: 12 },
