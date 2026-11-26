@@ -4,6 +4,7 @@ import { CellHistoryModal } from './CellHistoryModal';
 import { EditOperationModal } from './EditOperationModal';
 import { AddOperationModal } from './AddOperationModal';
 import { LoanModal } from './LoanModal';
+import { DepositModal } from './DepositModal';
 
 interface TableGridProps {
   startDate: Date;
@@ -24,6 +25,7 @@ const articles = [
   { id: '9', name: 'Интернет', type: 'row' },
   { id: '10', name: 'Мобильная связь', type: 'row' },
   { id: '11', name: 'Развлечения', type: 'row' },
+  { id: '12', name: 'Депозиты', type: 'deposit' },
 ];
 
 // Интерфейс операции
@@ -49,6 +51,7 @@ export const TableGrid: React.FC<TableGridProps> = ({ startDate, viewType = 'М�
   const [isEditVisible, setIsEditVisible] = useState(false);
   const [isAddVisible, setIsAddVisible] = useState(false);
   const [isLoanVisible, setIsLoanVisible] = useState(false);
+  const [isDepositVisible, setIsDepositVisible] = useState(false);
   
   // Данные выбранной ячейки
   const [selectedCell, setSelectedCell] = useState<{ 
@@ -143,7 +146,10 @@ export const TableGrid: React.FC<TableGridProps> = ({ startDate, viewType = 'М�
       setIsLoanVisible(true);
       return;
     }
-    
+    if (articleName === 'Депозиты') {
+      setIsDepositVisible(true);
+      return;
+    }
     // Для остальных статей - стандартная логика (история)
     setSelectedCell({ articleId, articleName, startDate: start, endDate: end, label });
     setIsHistoryVisible(true);
@@ -221,7 +227,7 @@ export const TableGrid: React.FC<TableGridProps> = ({ startDate, viewType = 'М�
               if (article.type === 'header') textColor = '#2D871F';
               if (article.type === 'header_expense') textColor = '#BD4E4E';
               if (article.type === 'balance') textColor = '#4E60BD';
-              
+               if (article.type === 'deposit') textColor = '#5B6AAD';
               const isEven = index % 2 === 0;
               
               return (
@@ -322,6 +328,15 @@ export const TableGrid: React.FC<TableGridProps> = ({ startDate, viewType = 'М�
           console.log('Данные займа:', data);
           setIsLoanVisible(false);
         }}
+      />
+      <DepositModal 
+        visible={isDepositVisible} 
+        onClose={() => setIsDepositVisible(false)} 
+        onSave={(data) => {
+          console.log('Депозит:', data);
+          setIsDepositVisible(false);
+        }} 
+      
       />
     </>
   );
