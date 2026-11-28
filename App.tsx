@@ -8,6 +8,10 @@ import { AddAccountScreen } from './src/screens/AddAccountScreen';
 import { AddCategoryScreen } from './src/screens/AddCategoryScreen';
 import { TableScreen } from './src/screens/TableScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
+import { ImportExportScreen } from './src/screens/ImportExportScreen';
+import { ImportScreen } from './src/screens/ImportScreen';
+import { ExportScreen } from './src/screens/ExportScreen';
+import { ReconciliationScreen } from './src/screens/ReconciliationScreen';
 // Импорт шрифтов
 import { useFonts, Inter_400Regular, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
 
@@ -42,7 +46,7 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <MenuProvider>
-        <TableScreen />
+        < ReconciliationScreen />
         <GlobalMenu />
       </MenuProvider>
     </SafeAreaProvider>
